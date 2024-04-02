@@ -1,6 +1,8 @@
 package main
 
 import (
+	"authzserver-go/auth"
+	"database/sql"
 	"encoding/json"
 	"net/http"
 	"time"
@@ -10,18 +12,13 @@ import (
 
 var jwtKey = []byte("my_secret_key")
 
-type Credentials struct {
-	Password string `json:"password"`
-	Username string `json:"username"`
-}
-
 type Claims struct {
 	Username string `json:"username"`
 	jwt.StandardClaims
 }
 
 func Signin(w http.ResponseWriter, r *http.Request) {
-	var creds Credentials
+	var creds auth.Credentials
 
 	err := json.NewDecoder(r.Body).Decode(&creds)
 	if err != nil {
@@ -29,11 +26,18 @@ func Signin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if creds.Username != "user1" || creds.Password != "password1" {
+	db, err := sql.Open("mysql", "appjwt:jwtpwd@tcp(mysql.rguima1-go.svc.cluster.local:3306)/userdb")
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	defer db.Close()
+
+	valid, err := auth.CheckCredentials(creds.Username, creds.PasswordHash, db)
+	if err != nil || !valid {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
-
 	expirationTime := time.Now().Add(5 * time.Minute)
 	claims := &Claims{
 		Username: creds.Username,
