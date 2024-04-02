@@ -29,12 +29,12 @@ components:
       deployment/replicas: 1
       deployment/cpuRequest: 10m
       deployment/memoryRequest: 10Mi
-      deployment/container-port: 8081
+      deployment/container-port: 8000
     kubernetes:
       uri: deploy.yaml
       endpoints:
-        - name: http-8081
-          targetPort: 8081
+        - name: http-8000
+          targetPort: 8000
           path: /
           secure: true
 commands:
