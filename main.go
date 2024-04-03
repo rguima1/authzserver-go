@@ -4,6 +4,7 @@ import (
 	"authzserver-go/auth"
 	"database/sql"
 	"encoding/json"
+	"log"
 	"net/http"
 	"time"
 
@@ -28,6 +29,7 @@ func Signin(w http.ResponseWriter, r *http.Request) {
 
 	db, err := sql.Open("mysql", "appjwt:jwtpwd@tcp(mysql.rguima1-go.svc.cluster.local:3306)/userdb")
 	if err != nil {
+		log.Printf("error connecting db!")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

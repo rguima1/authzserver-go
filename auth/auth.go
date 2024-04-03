@@ -11,13 +11,13 @@ import (
 )
 
 type Credentials struct {
-	Username     string
-	PasswordHash string
+	Username     string `json:"username"`
+	PasswordHash string `json:"password"`
 }
 
 func CheckCredentials(username, password string, db *sql.DB) (bool, error) {
 	var creds Credentials
-	sqlStmt := fmt.Sprintf("SELECT Username, PasswordHash FROM users WHERE Username= ?")
+	sqlStmt := fmt.Sprintf("SELECT username, password_hash FROM users WHERE username= ?")
 	row := db.QueryRow(sqlStmt, username)
 
 	switch err := row.Scan(&creds.Username, &creds.PasswordHash); err {
